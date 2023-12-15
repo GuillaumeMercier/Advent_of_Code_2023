@@ -1,11 +1,14 @@
 CC = gcc
 OPTFLAGS = -O6
 CFLAGS = -Wunused -Wall -fopenmp   $(OPTFLAGS) 
-SRCS = $(wildcard *.c)
-EXECS = $(patsubst %.c,%,$(SRCS))
+SRCS = $(wildcard *.c) 
+EXECS = $(patsubst %.c,%,$(SRCS)) day14_part2_gpu
 LIBS = -lpthread -lm
 
-all: $(EXECS)
+all: $(EXECS) 
+
+day14_part2_gpu: day14_part2_cuda.cu
+	nvcc -o $@ $< -lcudart
 
 %: %.c
 	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
