@@ -54,7 +54,7 @@ typedef struct {
   int from_north;
   int from_south;
   int from_east;
-  int from_west; 
+  int from_west;
 } tile_t ;
   
 static direction_t North = {.tag = NORTH, .offset = NORTH_OFF};
@@ -157,7 +157,7 @@ int parcours(beam_t *beam, tile_t  *map)
   tile_t *tile      = NULL; //next
   tile_t *curr_tile = TILE(map, (beam->x), (beam->y));
 
-  ((*curr_tile).energized)++;
+  (curr_tile->energized)++;
 
 #ifdef DEBUG
   int  x = beam->x;
@@ -170,7 +170,7 @@ int parcours(beam_t *beam, tile_t  *map)
     x++;
   if (beam->way.tag == WEST)
     x--;  
-  fprintf(stdout,"CURRENT TILE @ (%3i,%3i) = %c\n", beam->x, beam->y, (*curr_tile).tag);
+  fprintf(stdout,"CURRENT TILE @ (%3i,%3i) = %c\n", beam->x, beam->y, curr_tile->tag);
 #endif
   
   if (beam->way.tag == NORTH)
@@ -183,9 +183,9 @@ int parcours(beam_t *beam, tile_t  *map)
     tile = TILE(map, (beam->x+1), (beam->y));
 
 #ifdef DEBUG
-  fprintf(stdout,"NEXT    TILE @ (%3i,%3i) = %c\n", x, y, (*tile).tag);
+  fprintf(stdout,"NEXT    TILE @ (%3i,%3i) = %c\n", x, y, tile->tag);
 #endif
-  if ( (*curr_tile).tag == '.'){
+  if ( curr_tile->tag == '.'){
     change_map( curr_tile , beam->way);
   }
   
@@ -194,7 +194,7 @@ int parcours(beam_t *beam, tile_t  *map)
   //sleep(1);
 #endif
 
-  switch((*tile).tag)
+  switch(tile->tag)
     {
     case '*': //Black Hole
       {
@@ -203,10 +203,10 @@ int parcours(beam_t *beam, tile_t  *map)
       }
     case '-':
       {
-	(*tile).from_east = 1;
-	(*tile).from_west = 1;
+	tile->from_east = 1;
+	tile->from_west = 1;
 
-	if ((*tile).from_south || (*tile).from_north){
+	if (tile->from_south || tile->from_north){
 	  free(beam);
 	  return 0;	    
 	}
@@ -216,7 +216,7 @@ int parcours(beam_t *beam, tile_t  *map)
 	} else if (beam->way.tag == WEST){
 	  (beam->x)--;
 	} else if (beam->way.tag == NORTH){
-	  (*tile).from_north = 1;
+	  tile->from_north = 1;
 	  (beam->y)--;
 	  beam->way = East;
 	  	  
@@ -229,7 +229,7 @@ int parcours(beam_t *beam, tile_t  *map)
 	  parcours(new, map); 	  //pthread_create
 	  
 	} else if (beam->way.tag == SOUTH){
-	  (*tile).from_south = 1;
+	  tile->from_south = 1;
 	  (beam->y)++;
 	  beam->way = East;
 
@@ -246,10 +246,10 @@ int parcours(beam_t *beam, tile_t  *map)
       }
     case '|':
       {
-	(*tile).from_north = 1;
-	(*tile).from_south = 1;
+	tile->from_north = 1;
+	tile->from_south = 1;
 
-	if ((*tile).from_east || (*tile).from_west){
+	if (tile->from_east || tile->from_west){
 	  free(beam);
 	  return 0;	    
 	}
@@ -259,7 +259,7 @@ int parcours(beam_t *beam, tile_t  *map)
 	} else if (beam->way.tag == SOUTH){
 	  (beam->y)++;	  
 	} else if (beam->way.tag == EAST){
-	  (*tile).from_east = 1;
+	  tile->from_east = 1;
 	  (beam->x)++;
 	  beam->way = North;
 
@@ -272,7 +272,7 @@ int parcours(beam_t *beam, tile_t  *map)
 	  parcours(new, map); 	  //pthread_create
 	  
 	} else if (beam->way.tag == WEST){
-	  (*tile).from_west = 1;
+	  tile->from_west = 1;
 	  (beam->x)--;
 	  beam->way = North;
 
@@ -290,42 +290,42 @@ int parcours(beam_t *beam, tile_t  *map)
     case '/':
       {
 	if(beam->way.tag == EAST){
-	  if ((*tile).from_south && (*tile).from_east){
+	  if (tile->from_south && tile->from_east){
 	    free(beam);
 	    return 0;	    
 	  } else {
-	    (*tile).from_east  = 1;
-	    (*tile).from_south = 1;
+	    tile->from_east  = 1;
+	    tile->from_south = 1;
 	  }	  
 	  (beam->x)++;
 	  beam->way = North;
 	}  else if (beam->way.tag == WEST){
-	  if ((*tile).from_west && (*tile).from_north){
+	  if (tile->from_west && tile->from_north){
 	    free(beam);
 	    return 0;	    
 	  } else {
-	    (*tile).from_west  = 1;
-	    (*tile).from_north = 1;
+	    tile->from_west  = 1;
+	    tile->from_north = 1;
 	  }
 	  (beam->x)--;
 	  beam->way = South;
 	} else if (beam->way.tag == SOUTH){
-	  if ((*tile).from_east && (*tile).from_south){
+	  if (tile->from_east && tile->from_south){
 	    free(beam);
 	    return 0;	    
 	  } else {
-	    (*tile).from_east  = 1;
-	    (*tile).from_south = 1;
+	    tile->from_east  = 1;
+	    tile->from_south = 1;
 	  }
 	  (beam->y)++;
 	  beam->way = West;
 	} else if (beam->way.tag == NORTH){
-	  if ((*tile).from_west && (*tile).from_north){
+	  if (tile->from_west && tile->from_north){
 	    free(beam);
 	    return 0;	    
 	  } else {
-	    (*tile).from_west  = 1;
-	    (*tile).from_north = 1;
+	    tile->from_west  = 1;
+	    tile->from_north = 1;
 	  }
 	  (beam->y)--;
 	  beam->way = East;
@@ -336,42 +336,42 @@ int parcours(beam_t *beam, tile_t  *map)
     case '\\':
       {
 	if(beam->way.tag == EAST){
-	  if ((*tile).from_east && (*tile).from_north){
+	  if (tile->from_east && tile->from_north){
 	    free(beam);
 	    return 0;	    
 	  } else {
-	    (*tile).from_east  = 1;
-	    (*tile).from_north = 1;
+	    tile->from_east  = 1;
+	    tile->from_north = 1;
 	  }
 	  (beam->x)++;
 	  beam->way = South;
 	}  else if (beam->way.tag == WEST){
-	  if ((*tile).from_west && (*tile).from_south){
+	  if (tile->from_west && tile->from_south){
 	    free(beam);
 	    return 0;	    
 	  } else {
-	    (*tile).from_west  = 1;
-	    (*tile).from_south = 1;
+	    tile->from_west  = 1;
+	    tile->from_south = 1;
 	  }
 	  (beam->x)--;
 	  beam->way = North;
 	} else if (beam->way.tag == SOUTH){
-	  if ((*tile).from_west && (*tile).from_south){
+	  if (tile->from_west && tile->from_south){
 	    free(beam);
 	    return 0;	    
 	  } else {
-	    (*tile).from_west  = 1;
-	    (*tile).from_south = 1;
+	    tile->from_west  = 1;
+	    tile->from_south = 1;
 	  }
 	  (beam->y)++;
 	  beam->way = East;
 	} else if (beam->way.tag == NORTH){
-	  if ((*tile).from_east && (*tile).from_north){
+	  if (tile->from_east && tile->from_north){
 	    free(beam);
 	    return 0;	    
 	  } else {
-	    (*tile).from_east  = 1;
-	    (*tile).from_north = 1;
+	    tile->from_east  = 1;
+	    tile->from_north = 1;
 	  }
 	  (beam->y)--;
 	  beam->way = West;
@@ -387,31 +387,31 @@ int parcours(beam_t *beam, tile_t  *map)
       }
     default:
       {
-	if ((*tile).tag == '2'){
+	if (tile->tag == '2'){
 	  free(beam);
 	  return 0;
 	}
 	
-	if (is_light( (*tile).tag )) {
+	if (is_light( tile->tag )) {
 	  if ((beam->way.tag == NORTH)||
 	      (beam->way.tag == SOUTH)){
 	    
-	    if (((*tile).tag == NORTH)||
-		((*tile).tag == SOUTH)){
+	    if ((tile->tag == NORTH)||
+		(tile->tag == SOUTH)){
 	      free(beam);
 	      return 0;
-	    } else if(((*tile).tag == EAST)||
-		      ((*tile).tag == WEST)){	    
-	      (*tile).tag  = '2';
+	    } else if((tile->tag == EAST)||
+		      (tile->tag == WEST)){	    
+	      tile->tag  = '2';
 	    }
 	    
 	  } else if ((beam->way.tag == EAST)||
 		     (beam->way.tag == WEST)) {	 
-	    if (((*tile).tag == NORTH)||
-		((*tile).tag == SOUTH)){
-	      (*tile).tag  = '2';	 
-	    } else if(((*tile).tag == EAST)||
-		      ((*tile).tag == WEST)){	    
+	    if ((tile->tag == NORTH)||
+		(tile->tag == SOUTH)){
+	      tile->tag  = '2';	 
+	    } else if((tile->tag == EAST)||
+		      (tile->tag == WEST)){	    
 	      free(beam);
 	      return 0;
 	    }
