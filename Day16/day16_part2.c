@@ -85,7 +85,6 @@ void my_sort(int array[], int size)
   }
 }
 
-
 int is_mirrors(char tile)
 {
   return ((tile == '-') || (tile == '|') || (tile == '\\') || (tile == '/'));
@@ -95,18 +94,6 @@ int is_light(char tile)
 {
   return ((tile == NORTH) || (tile == SOUTH) || (tile == EAST) || (tile == WEST));
 }
-
-void change_map(tile_t *c, direction_t way)
-{
-  if ((*c).tag == '.'){
-    (*c).tag = way.tag;
-  } else if (is_light((*c).tag) && ((*c).tag != way.tag)) { 
-    (*c).tag = '2';
-  } else if (isdigit((*c).tag)){
-    (*c).tag = (((*c).tag)+1)%10; // FIXME      
-  } 
-}
-
 
 void change_pos(beam_t *beam, direction_t way, int offset)
 {
@@ -205,11 +192,11 @@ int parcours(beam_t *beam, tile_t  *map)
   fprintf(stdout,"NEXT    TILE @ (%3i,%3i) = %c\n", x, y, (*tile).tag);
 #endif
   if ( (*curr_tile).tag == '.'){
-    change_map( curr_tile , beam->way);
+    (*curr_tile).tag = beam->way.tag;
   }
   
 #ifdef DEBUG
-  //print_map(map, beam->x, beam->y);  
+  print_map(map, beam->x, beam->y);  
   //sleep(1);
 #endif
 
@@ -413,8 +400,7 @@ int parcours(beam_t *beam, tile_t  *map)
 	
 	if (is_light( (*tile).tag )) {
 	  if ((beam->way.tag == NORTH)||
-	      (beam->way.tag == SOUTH)){
-	    
+	      (beam->way.tag == SOUTH)){	    
 	    if (((*tile).tag == NORTH)||
 		((*tile).tag == SOUTH)){
 	      free(beam);
@@ -434,9 +420,9 @@ int parcours(beam_t *beam, tile_t  *map)
 	      free(beam);
 	      return 0;
 	    }
-	  }
+	  }	  
 	}
-	
+	  
 	change_pos_next(beam, beam->way);
 	parcours(beam, map);
 	break;
@@ -495,6 +481,7 @@ int main(int argc, char *argv[])
     int energizedW[y_max-2];
     memset(energizedW,0,sizeof(int)*(y_max-2));
 
+#pragma omp parallel for
     for(int tries = 0 ; tries < y_max - 2 ; tries++){
 
       tile_t data_copy[x_max][y_max];
@@ -528,6 +515,7 @@ int main(int argc, char *argv[])
     int energizedN[x_max-2];
     memset(energizedN,0,sizeof(int)*(x_max-2));
 
+#pragma omp parallel for
     for(int tries = 0 ; tries < x_max - 2 ; tries++){
 
       tile_t data_copy[x_max][y_max];
@@ -561,6 +549,7 @@ int main(int argc, char *argv[])
     int energizedE[y_max-2];
     memset(energizedE,0,sizeof(int)*(y_max-2));
 
+#pragma omp parallel for
     for(int tries = 0 ; tries < y_max - 2 ; tries++){
 
       tile_t data_copy[x_max][y_max];
@@ -588,13 +577,13 @@ int main(int argc, char *argv[])
       }      
     }
     my_sort(energizedE,y_max-2);    
-    fprintf(stdout,"========== EnergizedW = %i\n",energizedE[y_max-3]); 
-
+    fprintf(stdout,"========== EnergizedE = %i\n",energizedE[y_max-3]); 
 
     //S Side
     int energizedS[x_max-2];
     memset(energizedS,0,sizeof(int)*(x_max-2));
 
+#pragma omp parallel for
     for(int tries = 0 ; tries < x_max - 2 ; tries++){
 
       tile_t data_copy[x_max][y_max];
